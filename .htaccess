@@ -1,1 +1,56 @@
+# BEGIN EXPIRES
 
+<IfModule mod_expires.c>
+
+    ExpiresActive On
+
+    ExpiresDefault "access plus 10 days"
+
+    ExpiresByType text/css "access plus 1 week"
+
+    ExpiresByType text/plain "access plus 1 month"
+
+    ExpiresByType image/gif "access plus 1 month"
+
+    ExpiresByType image/png "access plus 1 month"
+
+    ExpiresByType image/jpeg "access plus 1 month"
+
+    ExpiresByType application/x-javascript "access plus 1 month"
+
+    ExpiresByType application/javascript "access plus 1 week"
+
+    ExpiresByType application/x-icon "access plus 1 year"
+
+</IfModule>
+
+# END EXPIRES
+
+
+
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+
+RewriteRule ^vendor/(.*)?$ / [F,L]
+RewriteRule ^composer\.(lock|json)$ / [F,L]
+
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# allow post requests
+RewriteCond %{REQUEST_METHOD} !=POST [NC] 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)([^/])$ /$1$2/ [L,R=301]
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteRule ^(.*)$ index.php [PT,L]
+
+</IfModule>
