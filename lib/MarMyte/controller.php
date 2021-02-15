@@ -15,12 +15,25 @@ if(!defined('controller')){ exit; }
 */ 
 class controller extends \MarMyte\pdo
 {
-	
+
+	/* @var string $_appFolder App folder definition */
+		private string $_appFolder;
+
+	/* @var string $_directory Directory definition */
+		private string $_directory;
+
+	/* @var array $_directoryArray Directory array */
+		private array $_directoryArray;
+
+	/* @var string $_pageUrl Page url definition */
+		private string $_pageUrl;
+
 	/**
 	 * construct contains the main process or view logic
-	 * @param array URL_NODES array of URL nodes 
+	 * @param \PDO|null $DBH Database handle
+	 * @throws \Exception
 	 */
-		function __construct(&$DBH = null)
+		function __construct(\PDO &$DBH = null)
 		{
 			
 			parent::__construct($DBH);
@@ -86,16 +99,16 @@ class controller extends \MarMyte\pdo
 						}
 					
 					//Post to file in app
-						if (file_exists(DOC_ROOT.'/app/'.$this->_appFolder.'/process/'.(($this->_directory !== '') ? $this->_directory.'/': '').'proc_'.$this->_pageUrl.'.php')) {
+						if (file_exists(DOC_ROOT.'/app/'.$this->_appFolder.'/controller/'.(($this->_directory !== '') ? $this->_directory.'/': '').'control_'.$this->_pageUrl.'.php')) {
 							define('PROCESS', true);
-							require(DOC_ROOT.'/app/'.$this->_appFolder.'/process/'.(($this->_directory !== '') ? $this->_directory.'/': '').'proc_'.$this->_pageUrl.'.php');
+							require(DOC_ROOT.'/app/'.$this->_appFolder.'/controller/'.(($this->_directory !== '') ? $this->_directory.'/': '').'control_'.$this->_pageUrl.'.php');
 						}
 				
 			//get requests
 				} else {
 					
 					//Global path for file
-						define('RESPONSE_PATH', DOC_ROOT.'/app/'.$this->_appFolder.'/response/views/'.(($this->_directory !== '') ? $this->_directory.'/': '').'view_'.$this->_pageUrl.'.php');
+						define('RESPONSE_PATH', DOC_ROOT.'/app/'.$this->_appFolder.'/view/views/'.(($this->_directory !== '') ? $this->_directory.'/': '').'view_'.$this->_pageUrl.'.php');
 					
 					//Grab common app actions
 						if (file_exists(DOC_ROOT.'/app/'.$this->_appFolder.'/'.$this->_appFolder.'.php')) {
@@ -104,9 +117,9 @@ class controller extends \MarMyte\pdo
 						}
 					
 					//Grab any response preparation
-						if (file_exists(DOC_ROOT.'/app/'.$this->_appFolder.'/prepare/'.(($this->_directory !== '') ? $this->_directory.'/': '').'prep_'.$this->_pageUrl.'.php')) {
+						if (file_exists(DOC_ROOT.'/app/'.$this->_appFolder.'/model/'.(($this->_directory !== '') ? $this->_directory.'/': '').'model_'.$this->_pageUrl.'.php')) {
 							define('PREPARE', true);
-							require(DOC_ROOT.'/app/'.$this->_appFolder.'/prepare/'.(($this->_directory !== '') ? $this->_directory.'/': '').'prep_'.$this->_pageUrl.'.php');
+							require(DOC_ROOT.'/app/'.$this->_appFolder.'/model/'.(($this->_directory !== '') ? $this->_directory.'/': '').'model_'.$this->_pageUrl.'.php');
 						}
 						
 					//Loop through template if exists, otherwsie include direct file, Template then has to call file in RESPONSE_PATH
@@ -117,7 +130,7 @@ class controller extends \MarMyte\pdo
 								
 								foreach (TEMPLATE as $templatePart){
 									
-									require(DOC_ROOT.'/app/'.$this->_appFolder.'/response/common/'.$templatePart.'.php');
+									require(DOC_ROOT.'/app/'.$this->_appFolder.'/view/common/'.$templatePart.'.php');
 									
 								}
 								
