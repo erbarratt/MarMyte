@@ -1,7 +1,7 @@
 <?php
 namespace MarMyte;
 
-if(!defined('move')){ exit; }
+if(!defined('Move')){ exit; }
 
 /**
 * Deals with actions from do functions
@@ -14,33 +14,35 @@ if(!defined('move')){ exit; }
 *
 */ 
 
-class move 
+class Move
 {
 	
 	/* @var string $_sessionKey The array key to store any passed messages */
-		private $_sessionKey = '';
+		private string $_sessionKey;
 		
 	/* @var string $_location Where to move to */
-		private $_location = '';
+		private string $_location;
 		
 	/* @var string $_message Message being passed */
-		private $_message = '';
+		private string $_message;
 	
-    /**
-     * Set member variables for use in performAction()
+	/* @var string $_messageClass Style for message element */
+		private string $_messageClass;
+	
+	/**
+	 * Set member variables for use in performAction()
 	 * @param string $location Location to move to
 	 * @param string $msg Message being passed
 	 * @param string $sessionKey The array key to store any passed messages
-	 * @return void
-     */
-		function __construct(string $location = '', string $msg = '', string $sessionKey = '')
+	 * @param string $sessionMessageClass Any passed class used for styling the message
+	 */
+		function __construct(string $location = '', string $msg = '', string $sessionKey = '', string $sessionMessageClass = '')
 		{
 			
 			$this->_sessionKey = $sessionKey;
 			$this->_location = $location;
 			$this->_message = $msg;
-				
-			return;
+			$this->_messageClass = $sessionMessageClass;
 			
 		}
 	
@@ -54,6 +56,11 @@ class move
 			//set message
 				if (trim($this->_message) !== '' && trim($this->_sessionKey) !== ''){
 					$_SESSION[$this->_sessionKey] = $this->_message;
+				}
+			
+			//set message class
+				if (trim($this->_messageClass) !== '' && trim($this->_sessionKey) !== ''){
+					$_SESSION[$this->_sessionKey.'_class'] = $this->_messageClass;
 				}
 			
 			//go
