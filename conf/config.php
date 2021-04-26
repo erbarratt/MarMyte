@@ -29,6 +29,7 @@
 	
 	//Grab the application configuration that may include DB connection and other configuration constants
 		if (file_exists(DOC_ROOT.'/conf/app_config.php')) {
+			define('APP_CONFIG', true);
 			require(DOC_ROOT.'/conf/app_config.php');
 		}
 		
@@ -103,7 +104,7 @@
 			try { 
 				$DBH = new \PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8mb4', DB_USER, DB_PASSWORD);
 				$DBH->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				$DBH->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, FALSE);
+				$DBH->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 				$DBH->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
 				$DBH->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false); 			//return database data type instead of all strings
 			}  
@@ -137,4 +138,4 @@
 		
 
 	//controller instantiate
-		$marController = new \MarMyte\controller($DBH); 
+		$marController = new \MarMyte\Controller($DBH);
