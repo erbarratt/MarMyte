@@ -379,9 +379,9 @@ class PDO
 					
 				} catch (\PDOException $e){
 					throw new \Exception($e->getMessage());
-				} finally {
-					return $STH->rowCount();
 				}
+				
+				return $STH->rowCount();
 				
 			}
 	
@@ -743,7 +743,7 @@ class PDO
 							unset ($this->_whereArray[$key]);
 						
 						//If the OP is in, then $value is an array, but the key is also set (not assigned int index)
-							if ($op === 'IN'){
+							if ($op === 'IN' || $op === 'NOT IN'){
 								
 								//has string been passed? I.e. comma'd list
 								if(!is_array($value)){
@@ -774,7 +774,7 @@ class PDO
 									}
 								
 								//write out to where string
-									$whereInj .= ' `'.$key.'` IN ('.implode(', ',$valueIdentifiers).') ';
+									$whereInj .= ' `'.$key.'` '.$op.' ('.implode(', ',$valueIdentifiers).') ';
 						
 						//otherwise, then if $value is an array, that means $key has been AUTO assigned as an int, and it's part of multiple field where (eg range `date` > X AND `date < Y)
 							} elseif (is_array($value)){
@@ -832,6 +832,8 @@ class PDO
 						return 'LIKE';
 					case 'I':
 						return 'IN';
+					case 'O':
+						return 'NOT IN';
 					default:
 						throw new \Exception ('Invalid Ops Parameter at index '.$i);
 				}
