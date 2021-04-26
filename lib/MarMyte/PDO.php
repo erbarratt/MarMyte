@@ -1,7 +1,7 @@
 <?php
 namespace MarMyte;
 
-if(!defined('pdo')){ exit; }
+if(!defined('PDO')){ exit; }
 
 /**
 * PDO Class
@@ -12,7 +12,7 @@ if(!defined('pdo')){ exit; }
 * @copyright  Elliott Barratt, all rights reserved.
 *
 */ 
-class pdo 
+class PDO
 {
 
 	/* @var object $DBH The Database Handle */
@@ -72,21 +72,19 @@ class pdo
 			
 			$this->DBH = $DBH;
 			
-			return;
-			
 		}
 	
 	//Query Functions
-		
+	
 		/**
-		* Quick Strict Select function
-		* @param array $whereFields array of selection fields
-		* @param string $ops where ops string
-		* @param string $table the table to select data from
-		* @param string $args array of args for single/multi, strict, tabled prefix return array and echo.
-		* @throws \Exception 
-		* @return array
-		*/
+		 * Quick Strict Select function
+		 * @param array $whereFields array of selection fields
+		 * @param string $ops where ops string
+		 * @param string $table the table to select data from
+		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
+		 * @throws \Exception
+		 * @return array
+		 */
 			public function selectQuick(array $whereFields, string $ops, string $table = '', string ...$args): ?array
 			{
 				
@@ -108,14 +106,14 @@ class pdo
 					return $this->runSelect($sql, $table, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::TABLED, $args), $this->_whereArray);
 				
 			}
-			
+	
 		/**
-		* Strict Select function
-		* @param string $table the table to select data from
-		* @param string $args array of args for single/multi, strict, tabled prefix return array and echo.
-		* @throws \Exception 
-		* @return array
-		*/
+		 * Strict Select function
+		 * @param string $table the table to select data from
+		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
+		 * @throws \Exception
+		 * @return array
+		 */
 			public function selStrict(string $table = '', string ...$args): ?array
 			{
 				
@@ -134,14 +132,15 @@ class pdo
 					return $this->runSelect($sql, $table, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::TABLED, $args), $this->_whereArray);
 				
 			}
-			
+	
 		/**
-		* Lax Select function
-		* @param string $query the table to select data from
-		* @param string $args array of args for single/multi, strict, tabled prefix return array and echo.
-		* @throws \Exception 
-		* @return array
-		*/
+		 * Lax Select function
+		 * @param string $query the table to select data from
+		 * @param array|null $boundArray
+		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
+		 * @throws \Exception
+		 * @return array
+		 */
 			public function selLax(string $query, array $boundArray = null, string ...$args): ?array
 			{
 				
@@ -159,17 +158,18 @@ class pdo
 					return $this->runSelect($query, 'table', in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::TABLED, $args), $boundArray);
 				
 			}
-			
+	
 		/**
-		* Strict Update function
-		* @param array $whereFields array of selection fields
-		* @param string $ops where ops string
-		* @param array $updateFields array of fields to be updated with values
-		* @param string $table the table to update the data into
-		* @param string $args array of args
-		* @return void
-		*/
-			public function updateQuick(array $whereFields, string $ops, array $updateFields, string $table, ...$args): void
+		 * Strict Update function
+		 * @param array $whereFields array of selection fields
+		 * @param string $ops where ops string
+		 * @param array $updateFields array of fields to be updated with values
+		 * @param string $table the table to update the data into
+		 * @param string $args array of args
+		 * @throws \Exception
+		 * @return ?int
+		 */
+			public function updateQuick(array $whereFields, string $ops, array $updateFields, string $table, ...$args): int
 			{
 				
 				//build where array
@@ -194,19 +194,18 @@ class pdo
 					}
 				
 				//run query
-					$this->queryLax($sql, $boundArray);
-				
-				return;
+					return $this->queryLax($sql, $boundArray);
 					
-			}		
-			
+			}
+	
 		/**
-		* Strict Update function
-		* @param string $table the table to update the data into
-		* @param string $args array of args
-		* @return void
-		*/
-			public function updateStrict(string $table = '', ...$args): void
+		 * Strict Update function
+		 * @param string $table the table to update the data into
+		 * @param string $args array of args
+		 * @throws \Exception
+		 * @return ?int
+		 */
+			public function updateStrict(string $table = '', ...$args): ?int
 			{
 				
 				//check table
@@ -228,19 +227,19 @@ class pdo
 					}
 				
 				//run query
-					$this->queryLax($sql, $boundArray);
-				
-				return;
+					return $this->queryLax($sql, $boundArray);
 					
 			}
-			
+	
 		/**
-		* Strict Insert function
-		* Function uses defined clauses as set before this function call to insert that data as key=>value pairs into database table
-		* @param array $insertFields Field=>value array of inserted info
-		* @param string $args array of args
-		* @return int
-		*/
+		 * Strict Insert function
+		 * Function uses defined clauses as set before this function call to insert that data as key=>value pairs into database table
+		 * @param array $insertFields Field=>value array of inserted info
+		 * @param string $table
+		 * @param mixed ...$args array of args
+		 * @throws \Exception
+		 * @return int
+		 */
 			public function insertQuick(array $insertFields, string $table, ...$args): ?int
 			{
 			
@@ -262,14 +261,16 @@ class pdo
 				return $this->DBH->lastInsertId();
 				
 			}
-			
-			
+	
+	
 		/**
-		* Strict Insert function
-		* Function uses defined clauses as set before this function call to insert that data as key=>value pairs into database table
-		* @param string $args array of args
-		* @return int
-		*/
+		 * Strict Insert function
+		 * Function uses defined clauses as set before this function call to insert that data as key=>value pairs into database table
+		 * @param string $table
+		 * @param mixed ...$args array of args
+		 * @throws \Exception
+		 * @return int
+		 */
 			public function insertStrict(string $table = '', ...$args): ?int
 			{
 			
@@ -291,14 +292,15 @@ class pdo
 				return $this->DBH->lastInsertId();
 				
 			}
-			
+	
 		/**
-		* Strict Delete function
-		* @param string $table the table to delete data from
-		* @param string $args array of args
-		* @return void
-		*/
-			public function deleteStrict(string $table = '', ...$args): void
+		 * Strict Delete function
+		 * @param string $table the table to delete data from
+		 * @param string $args array of args
+		 * @throws \Exception
+		 * @return ?int
+		 */
+			public function deleteStrict(string $table = '', ...$args): ?int
 			{
 				
 				//check table
@@ -313,21 +315,20 @@ class pdo
 					}
 				
 				//run query
-					$this->queryLax($sql, $this->_whereArray);
-				
-				return;
+					return $this->queryLax($sql, $this->_whereArray);
 				
 			}
-		
+	
 		/**
-		* Strict Delete function
-		* @param array $whereFields array of selection fields
-		* @param string $ops where ops string
-		* @param string $table the table to delete data from
-		* @param string $args array of args
-		* @return void
-		*/
-			public function deleteQuick(array $whereFields, string $ops, string $table = '', ...$args): void
+		 * Strict Delete function
+		 * @param array $whereFields array of selection fields
+		 * @param string $ops where ops string
+		 * @param string $table the table to delete data from
+		 * @param string $args array of args
+		 * @throws \Exception
+		 * @return ?int
+		 */
+			public function deleteQuick(array $whereFields, string $ops, string $table = '', ...$args): ?int
 			{
 				
 				//check table
@@ -345,20 +346,18 @@ class pdo
 					}
 				
 				//run query
-					$this->queryLax($sql, $this->_whereArray);
-				
-				return;
+					return $this->queryLax($sql, $this->_whereArray);
 				
 			}
-		
+	
 		/**
-		* Straight Query function for passed query strings, none return
-		* @param string $query the query to run
-		* @param array $boundArray array of bound parameters
-		* @throws \Exception
-		* @return void
-		*/
-			public function queryLax(string $query, array $boundArray = null): void
+		 * Straight Query function for passed query strings, none return
+		 * @param string $query the query to run
+		 * @param array|null $boundArray array of bound parameters
+		 * @throws \Exception
+		 * @return ?int
+		 */
+			public function queryLax(string $query, array $boundArray = null): int
 			{
 				
 				try {
@@ -373,27 +372,26 @@ class pdo
 					
 					$this->clearProperties();
 					
-					if($STH->errorCode() == 0) {
-						//all good
-					} else {
-						$errors = $stmt->errorInfo();
+					if($STH->errorCode() != 0) {
+						$errors = $STH->errorInfo();
 						throw new \Exception($errors[2]);
 					}
 					
 				} catch (\PDOException $e){
 					throw new \Exception($e->getMessage());
 				} finally {
-					return;
+					return $STH->rowCount();
 				}
 				
 			}
-			
+	
 		/**
-		* Check if row(s) exist
-		* @param string $table the table to select data from
-		* @param string $args array of args for single/multi, strict, tabled prefix return array and echo.
-		* @return bool
-		*/
+		 * Check if row(s) exist
+		 * @param string $table the table to select data from
+		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
+		 * @throws \Exception
+		 * @return bool
+		 */
 			public function rowsExist(string $table = '', string ...$args): bool
 			{
 				
@@ -402,13 +400,15 @@ class pdo
 				return ($result === null) ? false : true ;
 				
 			}
-			
+	
 		/**
-		* Return a count of selected rows
-		* @param string $table the table to select data from
-		* @param string $args array of args for single/multi, strict, tabled prefix return array and echo.
-		* @return int
-		*/
+		 * Return a count of selected rows
+		 * @param string $table the table to select data from
+		 * @param string $field
+		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
+		 * @throws \Exception
+		 * @return int
+		 */
 			public function countRows(string $table = '', string $field = '`id`', string ...$args): int
 			{
 				
@@ -427,13 +427,15 @@ class pdo
 					return ($this->runSelect($sql, $table, true, in_array(self::STRICT, $args), false, $this->_whereArray))['count'];
 				
 			}
-			
+	
 		/**
-		* Return a Key Value pair array from loaded query
-		* @param string $table the table to select data from
-		* @param string $args array of args for single/multi, strict, tabled prefix return array and echo.
-		* @return array
-		*/
+		 * Return a Key Value pair array from loaded query
+		 * @param string $table the table to select data from
+		 * @param array $fields
+		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
+		 * @throws \Exception
+		 * @return array
+		 */
 			public function loadKeyValueArray(string $table = '', array $fields = ['id','name'], string ...$args): array
 			{
 				
@@ -463,31 +465,29 @@ class pdo
 	//Utility Functions
 	
 		/**
-		* Check if the table string passed is ok
-		* @param string $table The table string to check
-		* @return void
-		*/
+		 * Check if the table string passed is ok
+		 * @param string $table The table string to check
+		 * @throws \Exception
+		 * @return void
+		 */
 			private function checkTable(string $table) :void
 			{
-				
 				if (trim($table) === ''){
 					throw new \Exception ('Table argument empty string.');
 				}
-				
-				return;
-				
 			}
 	
 		/**
-		* Run the select that's set up by selStrict and selLax functions
-		* @param string $query the query to run
-		* @param bool $singleResult single row or multi row return
-		* @param bool $strict throw exception on empty data or not
-		* @param bool $arrayType prefix return array with a ['table'] element in each row
-		* @param array $boundArray array of bound paramters for sql
-		* @throws \Exception
-		* @return array
-		*/
+		 * Run the select that's set up by selStrict and selLax functions
+		 * @param string $query the query to run
+		 * @param string $table
+		 * @param bool $singleResult single row or multi row return
+		 * @param bool $strict throw exception on empty data or not
+		 * @param bool $tabled
+		 * @param array|null $boundArray array of bound paramters for sql
+		 * @throws \Exception
+		 * @return array
+		 */
 			private function runSelect(string $query, string $table, bool $singleResult = false, bool $strict = false, bool $tabled = false, array $boundArray = null): ?array
 			{
 
@@ -603,12 +603,12 @@ class pdo
 					}
 			
 			}
-			
+	
 		/**
-		* Check the sql function passed is ok
-		* @param string $value a sql function
-		* @return bool
-		*/
+		 * Check the sql function passed is ok
+		 * @param string|null $value a sql function
+		 * @return bool
+		 */
 			private function checkFunction(?string $value = ''): bool
 			{
 				$value = trim($value);
@@ -619,10 +619,8 @@ class pdo
 					}
 				
 				//none argument functions
-					switch ($value){
-						case 'NOW()':
-							return true;
-						break;
+					if($value == 'NOW()'){
+						return true;
 					}
 				
 				//argument functions
@@ -690,8 +688,6 @@ class pdo
 				$this->_groupBy = null;
 				$this->_limit =  null;
 				
-				return;
-				
 			}
 		
 	//End Utility Functions
@@ -702,7 +698,7 @@ class pdo
 		* Build the whole where injection.
 		* Takes all of the values (and arrays) in the Where Array and turns them into a string with bound parametres
 		* Note all the trimming, as this can catch whether or not the supplied is with '`' or not.
-		* @param $prefix any field prefix
+		* @param string $prefix any field prefix
 		* @throws \Exception
 		* @return string
 		*/
@@ -816,37 +812,28 @@ class pdo
 		* @throws \Exception
 		* @return string
 		*/
-			private function getOp(&$i): string
+			private function getOp(string $i): string
 			{
 				$op = substr($this->_whereOps, ($i-1), 1);
 				switch ($op){
 					case '=':
 						return '=';
-					break;
 					case 'N':
 						return '!=';
-					break;
 					case '<':
 						return '<';
-					break;
 					case '>':
 						return '>';
-					break;
 					case 'L':
 						return '<=';
-					break;
 					case 'G':
 						return '>=';
-					break;
 					case 'X':
 						return 'LIKE';
-					break;
 					case 'I':
 						return 'IN';
-					break;
 					default:
 						throw new \Exception ('Invalid Ops Parameter at index '.$i);
-					break;
 				}
 				
 			}
@@ -1117,7 +1104,6 @@ class pdo
 				
 				$this->_whereArray = $array;
 				$this->_whereOps = $ops;
-				return;
 				
 			}
 			
@@ -1150,7 +1136,6 @@ class pdo
 			public function setwhereFields(array $array): void
 			{		
 				$this->_whereArray = $array;
-				return;
 			}
 			
 		/**
@@ -1161,7 +1146,6 @@ class pdo
 			public function setWhereOps(string $ops): void
 			{
 				$this->_whereOps = $ops;
-				return;
 			}
 			
 		/**
@@ -1172,7 +1156,6 @@ class pdo
 			public function setSelectFields(array $array): void
 			{
 				$this->_selectFields = $array;
-				return;
 			}
 		
 		/**
@@ -1183,7 +1166,6 @@ class pdo
 			public function setOrderBy(array $array): void
 			{
 				$this->_orderByArray = $array;
-				return;
 			}
 			
 		/**
@@ -1194,7 +1176,6 @@ class pdo
 			public function setGroupBy($groupBy): void
 			{
 				$this->_groupBy = $groupBy;
-				return;
 			}
 			
 		/**
@@ -1205,27 +1186,26 @@ class pdo
 			public function setLimit($limit): void
 			{
 				$this->_limit = $limit;
-				return;
 			}
-			
+	
 		/**
-		* Set the select insert fields member
-		* @return void
-		*/
+		 * Set the select insert fields member
+		 * @param array $array
+		 * @return void
+		 */
 			public function setUpdateFields(array $array): void
 			{
 				$this->_updateFields = $array;
-				return;
 			}
-			
+	
 		/**
-		* Set the select insert fields member
-		* @return void
-		*/
+		 * Set the select insert fields member
+		 * @param array $array
+		 * @return void
+		 */
 			public function setInsertFields(array $array): void
 			{
 				$this->_insertFields = $array;
-				return;
 			}
 			
 }
