@@ -13,7 +13,7 @@ if(!defined('controller')){ exit; }
 * @copyright  Elliott Barratt, all rights reserved.
 *
 */ 
-class controller extends \MarMyte\pdo
+class Controller extends \MarMyte\PDO
 {
 
 	/* @var string $_appFolder App folder definition */
