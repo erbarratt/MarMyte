@@ -1,7 +1,7 @@
 <?php
 namespace MarMyte;
 
-if(!defined('controller')){ exit; }
+if(!defined('Controller')){ exit; }
 
 /**
 * Controller routing class
@@ -91,7 +91,7 @@ class Controller extends \MarMyte\PDO
 			
 			//post requests
 				if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-					
+				
 					//Grab common app actions
 						if (file_exists(DOC_ROOT.'/app/'.$this->_appFolder.'/'.$this->_appFolder.'_post.php')) {
 							define('COMMON', true);
