@@ -27,8 +27,8 @@ class PDO
 	/* @var int STRICT Integer param for variadic function params to set as single result retrieval */
 		public const STRICT = 3;
 	
-	/* @var int TABLED Integer param for variadic function params to prefix array elements with a parent element of the table name, useful in large scripts */
-		public const TABLED = 4;
+	/* @var int KEY_VAL_ARRAY Integer param for variadic function params to return a key value array if select fields count === 2 */
+		public const KEY_VAL_ARRAY = 4;
 	
 	/* @var int SQL_ECHO Integer param for variadic function params to echo the SQL WITHOUT bounds params */
 		public const SQL_ECHO = 5;
@@ -65,13 +65,7 @@ class PDO
 	*/
 		function __construct(\PDO &$DBH)
 		{
-			
-			if($DBH === null){
-				throw new \Exception('PDO class instantiated with null DBH Database handle');
-			}
-			
 			$this->DBH = $DBH;
-			
 		}
 	
 	//Query Functions
@@ -103,7 +97,7 @@ class PDO
 					} 
 				
 				//run using any passed arguments
-					return $this->runSelect($sql, $table, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::TABLED, $args), $this->_whereArray);
+					return $this->runSelect($sql, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::KEY_VAL_ARRAY, $args), $this->_whereArray);
 				
 			}
 	
@@ -129,7 +123,7 @@ class PDO
 					}
 				
 				//run using any passed arguments
-					return $this->runSelect($sql, $table, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::TABLED, $args), $this->_whereArray);
+					return $this->runSelect($sql, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::KEY_VAL_ARRAY, $args), $this->_whereArray);
 				
 			}
 	
@@ -155,7 +149,7 @@ class PDO
 					}
 				
 				//run using any passed arguments
-					return $this->runSelect($query, 'table', in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::TABLED, $args), $boundArray);
+					return $this->runSelect($query, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::KEY_VAL_ARRAY, $args), $boundArray);
 				
 			}
 	
@@ -212,7 +206,7 @@ class PDO
 					$this->checkTable($table);
 				
 				//build sql string
-					$sql = 'UPDATE `'.$table.'` SET '.$this->getUpdateFieldInj().' '.$this->getWhereInj('w_').'';
+					$sql = 'UPDATE `'.$table.'` SET '.$this->getUpdateFieldInj().' '.$this->getWhereInj('w_');
 				
 				//echo if in args
 					if (in_array(self::SQL_ECHO, $args)){
@@ -307,7 +301,7 @@ class PDO
 					$this->checkTable($table);
 				
 				//build sql string
-					$sql = 'DELETE FROM `'.$table.'` '.$this->getWhereInj().'';
+					$sql = 'DELETE FROM `'.$table.'` '.$this->getWhereInj();
 				
 				//echo if in args
 					if (in_array(self::SQL_ECHO, $args)){
@@ -338,7 +332,7 @@ class PDO
 					$this->setWhereParams($whereFields, $ops);
 				
 				//build sql string
-					$sql = 'DELETE FROM `'.$table.'` '.$this->getWhereInj().'';
+					$sql = 'DELETE FROM `'.$table.'` '.$this->getWhereInj();
 				
 				//echo if in args
 					if (in_array(self::SQL_ECHO, $args)){
@@ -394,11 +388,8 @@ class PDO
 		 */
 			public function rowsExist(string $table = '', string ...$args): bool
 			{
-				
 				$result = $this->selStrict($table, ...$args);
-				
-				return ($result === null) ? false : true ;
-				
+				return !(($result === null));
 			}
 	
 		/**
@@ -424,39 +415,7 @@ class PDO
 					}
 			
 				//run and return from firs element
-					return ($this->runSelect($sql, $table, true, in_array(self::STRICT, $args), false, $this->_whereArray))['count'];
-				
-			}
-	
-		/**
-		 * Return a Key Value pair array from loaded query
-		 * @param string $table the table to select data from
-		 * @param array $fields
-		 * @param string ...$args array of args for single/multi, strict, tabled prefix return array and echo.
-		 * @throws \Exception
-		 * @return array
-		 */
-			public function loadKeyValueArray(string $table = '', array $fields = ['id','name'], string ...$args): array
-			{
-				
-				//run query
-					$result = $this->selStrict($table, ...$args);
-				
-				$array = [];
-
-				if ($result != null){
-					
-					foreach ($result as $key => $row){
-						$array[$row[$fields[0]]] = $row[$fields[1]];
-					}
-					
-				} else {
-					
-					return ['No Items'=>''];
-					
-				}
-				
-				return $array;
+					return ($this->runSelect($sql, true, in_array(self::STRICT, $args), false, $this->_whereArray))['count'];
 				
 			}
 			
@@ -477,18 +436,17 @@ class PDO
 				}
 			}
 	
-		/**
-		 * Run the select that's set up by selStrict and selLax functions
-		 * @param string $query the query to run
-		 * @param string $table
-		 * @param bool $singleResult single row or multi row return
-		 * @param bool $strict throw exception on empty data or not
-		 * @param bool $tabled
-		 * @param array|null $boundArray array of bound paramters for sql
-		 * @throws \Exception
-		 * @return array
-		 */
-			private function runSelect(string $query, string $table, bool $singleResult = false, bool $strict = false, bool $tabled = false, array $boundArray = null): ?array
+	/**
+	 * Run the select that's set up by selStrict and selLax functions
+	 * @param string     $query        the query to run
+	 * @param bool       $singleResult single row or multi row return
+	 * @param bool       $strict       throw exception on empty data or not
+	 * @param bool       $keyValArray  return a key value array or not
+	 * @param array|null $boundArray   array of bound paramters for sql
+	 * @throws \Exception
+	 * @return array
+	 */
+			private function runSelect(string $query, bool $singleResult = false, bool $strict = false, bool $keyValArray = false, array $boundArray = null): ?array
 			{
 
 				//Try to prepare the SQL statement, throw exception if this fails, for example without any where fields + ops?
@@ -504,35 +462,37 @@ class PDO
 						
 					} catch (\PDOException $e) {
 						throw new \Exception($e->getMessage());
-					} finally {
-						$this->clearProperties();
 					}
 
 				//fetch as an assoc array
 					$STH->setFetchMode(\PDO::FETCH_ASSOC);
 					
-				//build table'd array to return
-					if ($tabled === true){
-						
-						$returnedResult = [];
-						$tempResults = [];
+					$r = [];
+					
+				//build a key val array
+					//if select fields not stipulated, try id,name
+					if($keyValArray === true && $this->_selectFields === '*'){
+						$this->_selectFields = ['id','name'];
+					}
+				
+					if ($keyValArray === true && count($this->_selectFields) === 2){
 						
 						if ($singleResult === true){
 							
-							$fetched = $STH->fetch();
+							$r = $STH->fetch();
 							
-							if ($fetched === false){
-							
+							if ($r === false){
+								
 								//no rows
 								if($strict === true){
 									throw new \Exception('No Results');
 								}
 								
-								return null;
+								$r = null;
 								
+							} else {
+								$r = [$r[$this->_selectFields[0]]=>$r[$this->_selectFields[1]]];
 							}
-							
-							return [$table => $fetched];
 							
 						} else {
 							
@@ -545,19 +505,12 @@ class PDO
 									throw new \Exception('No Results');
 								}
 								
-								return null;
+								$r = null;
 								
 							} else {
-								
 								foreach($fetched as $row){
-									foreach ($row as $key=>$value){
-											$tempResults[$table][$key] = $value;
-									}
-									$returnedResult[] = $tempResults;
+									$r[ $row[$this->_selectFields[0]] ] = $row[$this->_selectFields[1]];
 								}
-								
-								return $returnedResult;
-								
 							}
 							
 						}
@@ -567,40 +520,39 @@ class PDO
 						
 						if ($singleResult === true){
 							
-							$fetched = $STH->fetch();
+							$r = $STH->fetch();
 							
-							if ($fetched === false){
+							if ($r === false){
 								
 								//no rows
 								if($strict === true){
 									throw new \Exception('No Results');
 								}
 									
-								return null;
+								$r = null;
 								
-							} else {
-								return $fetched;
 							}
 							
 						} else {
 							
-							$fetched = $STH->fetchAll();
+							$r = $STH->fetchAll();
 							
-							if (empty($fetched)){
+							if (empty($r)){
 								
 								//no rows
 								if($strict === true){
 									throw new \Exception('No Results');
 								}
 								
-								return null;
+								$r = null;
 								
-							} else {
-								return $fetched;
 							}
 							
 						}
 					}
+					
+				$this->clearProperties();
+				return $r;
 			
 			}
 	
@@ -638,7 +590,6 @@ class PDO
 							mb_stripos($value, 'AVG(') === 0 ||
 							mb_stripos($value, 'CEIL(') === 0 ||
 							mb_stripos($value, 'COUNT(') === 0 ||
-							mb_stripos($value, 'FORMAT(') === 0 ||
 							mb_stripos($value, 'FLOOR(') === 0 ||
 							mb_stripos($value, 'MAX(') === 0 ||
 							mb_stripos($value, 'MIN(') === 0 ||
@@ -1032,10 +983,10 @@ class PDO
 						
 						//check passed function
 							if ($this->checkFunction($value)){
-								$fieldInj .= ' `'.$key.'` = '.$value.'';
+								$fieldInj .= ' `'.$key.'` = '.$value;
 								unset($this->_updateFields[$key]);
 							} else {
-								$fieldInj .= ' `'.$key.'` = :'.$key.'';
+								$fieldInj .= ' `'.$key.'` = :'.$key;
 							}
 							
 						$i++;
