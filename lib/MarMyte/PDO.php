@@ -738,8 +738,20 @@ class PDO
 									
 								}
 								
+						
+							}
+							
+						//catch tests for null
+							else if($value === null){
+								if($op === '='){
+									$whereInj .= ' `'.$key.'` IS NULL ';
+								} else {
+									$whereInj .= ' `'.$key.'` IS NOT NULL ';
+								}
+							}
+							
 						//if op is not IN and $value not an array, then just a flat where clause (possibly like)
-							} else {
+							else {
 								
 								//catch LIKE operator
 									$value = ($op === 'LIKE') ? '%'.$value.'%' : $value;
