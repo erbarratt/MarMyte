@@ -85,19 +85,8 @@ class PDO
 				//build where array
 					$this->setWhereParams($whereFields, $ops);
 				
-				//check table
-					$this->checkTable($table);
-					
-				//build sql string
-					$sql = 'SELECT '. $this->getFieldInjSelect().' FROM `'.$table.'` '.$this->getWhereInj().' '.$this->getGroupByInj().' '.$this->getOrderByInj().' '.$this->getLimitInj();
-				
-				//echo if in args
-					if (in_array(self::SQL_ECHO, $args)){
-						echo $sql;
-					} 
-				
-				//run using any passed arguments
-					return $this->runSelect($sql, in_array(self::SINGLE, $args), in_array(self::STRICT, $args), in_array(self::KEY_VAL_ARRAY, $args), $this->_whereArray);
+				//run
+					return $this->selStrict($table, ...$args);
 				
 			}
 	
@@ -171,24 +160,9 @@ class PDO
 					
 				//set update array
 					$this->setUpdateFields($updateFields);
-				
-				//build sql string
-					$sql = 'UPDATE `'.$table.'` SET '.$this->getUpdateFieldInj().' '.$this->getWhereInj('w_').'';
-				
-				//echo if in args
-					if (in_array(self::SQL_ECHO, $args)){
-						echo $sql;
-					}
-				
-				//set bound array if present
-					if (is_array($this->_whereArray)){
-						$boundArray = array_merge ($this->_updateFields, $this->_whereArray);
-					} else {
-						$boundArray = $this->_updateFields;
-					}
-				
-				//run query
-					return $this->queryLax($sql, $boundArray);
+					
+				//run
+					return $this->updateStrict($table, ...$args);
 					
 			}
 	
@@ -239,20 +213,9 @@ class PDO
 			
 				//set update array
 					$this->setInsertFields($insertFields);
-				
-				//build sql string
-					$inj = $this->getFieldToValueInsert();
-					$sql = 'INSERT INTO `'.$table.'` ('.$inj['fields'].') VALUES ('.$inj['values'].')';
-				
-				//echo if in args
-					if (in_array(self::SQL_ECHO, $args)){
-						echo $sql;
-					}
-				
-				//run query
-					$this->queryLax($sql, $this->_insertFields);
-				
-				return $this->DBH->lastInsertId();
+					
+				//run
+					return $this->insertStrict($table, ...$args);
 				
 			}
 	
@@ -330,17 +293,9 @@ class PDO
 				
 				//build where array
 					$this->setWhereParams($whereFields, $ops);
-				
-				//build sql string
-					$sql = 'DELETE FROM `'.$table.'` '.$this->getWhereInj();
-				
-				//echo if in args
-					if (in_array(self::SQL_ECHO, $args)){
-						echo $sql;
-					}
-				
-				//run query
-					return $this->queryLax($sql, $this->_whereArray);
+					
+				//run
+					return $this->deleteQuick($table, ...$args);
 				
 			}
 	
@@ -739,6 +694,11 @@ class PDO
 								}
 								
 						
+							}
+							
+						//catch functions
+							else if($this->checkFunction($value) === true){
+								$whereInj .= ' `'.$key.'` '.$op.' '.$value.' ';
 							}
 							
 						//catch tests for null
